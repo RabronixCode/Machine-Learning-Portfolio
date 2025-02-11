@@ -37,7 +37,3 @@ plt.bar(df['sex'], df['charges'])
 plt.bar(df['smoker'], df['charges'])
 plt.bar(df['region'], df['charges'])
 plt.show()
-
-
-plt.scatter(df['age'], df['charges'])
-plt.show()
