@@ -97,7 +97,7 @@ plt.show()
 # Heatmap
 #dataplot = sns.heatmap(df.corr(numeric_only=True), cmap="YlGnBu", annot=True)
 #plt.show()
-"""
+
 # We can see that there is no correlation between values and also that smokers have signifanctly higher charges
 corr_matrix = df[numerical_features].corr()
 sns.heatmap(corr_matrix, annot=True, cmap="coolwarm", fmt=".2f", linewidths=1, linecolor="black")
@@ -113,5 +113,14 @@ pivot_table = df.pivot_table(index='children', columns='sex', values='bmi', aggf
 
 plt.figure(figsize=(6, 5))
 sns.heatmap(pivot_table, annot=True, cmap="Blues", linewidths=0.5)
+plt.show()
+"""
+
+# We can see smokers are the worst :)
+sns.pairplot(df, hue='smoker', palette='coolwarm')
+plt.show()
+
+# Just in case (pairplot with regression line) because we will be predicting values
+sns.pairplot(df, kind='reg')
 plt.show()
 
