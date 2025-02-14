@@ -3,7 +3,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder, StandardScaler
 
 # We need to predict charges based on some information because we want to know an estimate/prediction
 # In the dataset we have columns: feature_columns = [age, sex, bmi, children, smoker, region], target_column = [charges]
@@ -25,13 +25,13 @@ print(df.nunique())
 numerical_features = ['age', 'bmi', 'children', 'charges']
 categorical_features = ['sex', 'smoker', 'region']
 
-
+"""
 # Histogram
 df[numerical_features].hist(figsize=(10,10), grid=False, edgecolor='black', alpha=0.7, bins=15)
 plt.xlabel('Value')
 plt.ylabel('Frequency')
 plt.show()
-"""
+
 # Checking whether relationship between age and charges is linear
 sns.scatterplot(data=df, x='age', y='charges', hue='smoker')
 plt.show()
@@ -133,11 +133,11 @@ plt.show()
 df_wo_outliers = df[df['bmi'] < df.bmi.quantile(0.75) + 1.5*(df.bmi.quantile(0.75) - df.bmi.quantile(0.25))]
 
 # Scaling AGE with MinMaxScaler
-#min_max = MinMaxScaler()
-#df_wo_outliers['age'] = min_max.fit_transform(df_wo_outliers[['age']])
+min_max = MinMaxScaler()
+df_wo_outliers['age'] = min_max.fit_transform(df_wo_outliers[['age']])
 
 # Scaling AGE with Bins
-df_wo_outliers['age'] = pd.cut(df_wo_outliers['age'], bins=3, labels=['Young', 'Middle Age', 'Old'])
+#df_wo_outliers['age'] = pd.cut(df_wo_outliers['age'], bins=3, labels=['Young', 'Middle Age', 'Old'])
 
 # Scaling BMI with Standard Scaler
 z_score = StandardScaler()
@@ -145,5 +145,11 @@ df_wo_outliers['bmi'] = z_score.fit_transform(df_wo_outliers[['bmi']])
 
 # Log Transforming CHARGES
 df_wo_outliers['charges'] = np.log1p(df_wo_outliers['charges'])
-sns.scatterplot(data=df_wo_outliers, x='bmi', y='charges', hue='age')
-plt.show()
+#sns.scatterplot(data=df_wo_outliers, x='bmi', y='charges', hue='age')
+#plt.show()
+
+encoder = OneHotEncoder(drop='if_binary', sparse_output=False)
+encoded_array = encoder.fit_transform(df_wo_outliers[['smoker', 'sex', 'region']])
+encoded_df = pd.DataFrame(encoded_array, columns=encoder.get_feature_names_out(['smoker', 'sex', 'region']))
+df_encoded = pd.concat([df_wo_outliers.drop(columns=['smoker', 'sex', 'region']), encoded_df], axis=1)
+
