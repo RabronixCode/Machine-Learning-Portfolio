@@ -1,6 +1,7 @@
+import time
 from matplotlib import pyplot as plt
 import pandas as pd
-import seaborn as sb
+import seaborn as sns
 
 # We need to predict charges based on some information because we want to know an estimate/prediction
 # In the dataset we have columns: feature_columns = [age, sex, bmi, children, smoker, region], target_column = [charges]
@@ -19,48 +20,55 @@ print(df.nunique())
 # We Have 1338 rows, no null cells, (age, children) = int64, (bmi, charges) = float64, (sex, smoker, region) = object
 # Now we will visualize the data
 
-numerical_features = ['age', 'bmi', 'children', 'charges']
+numerical_features = ['age', 'bmi', 'children']
 categorical_features = ['sex', 'smoker', 'region']
 
+"""
 # Histogram
-df[numerical_features].hist(figsize=(10,10), grid=False, edgecolor='black', alpha=0.7)
+df[numerical_features].hist(figsize=(10,10), grid=False, edgecolor='black', alpha=0.7, bins=15)
 plt.xlabel('Value')
 plt.ylabel('Frequency')
 #plt.show()
 
 
 fig = plt.figure(figsize=(10,10))
-df[numerical_features].boxplot(patch_artist=True, notch=True, vert=0, grid=False)
+df[numerical_features].boxplot(patch_artist=True, notch=True, grid=False)
+plt.show()
+
+# Scatter plot to check the outliers - seems like the charges price varies and is not specifically high or low so yes indeed we can delete these rows and consider these bmi values as outliers
+plt.scatter(df[df['bmi'] > df.bmi.quantile(0.75) + 1.5*(df.bmi.quantile(0.75) - df.bmi.quantile(0.25))]['bmi'], df[df['bmi'] > df.bmi.quantile(0.75) + 1.5*(df.bmi.quantile(0.75) - df.bmi.quantile(0.25))]['charges'], alpha=0.7)
 #plt.show()
 
+
+# Can see that there are almost twice as much paitents who smoke then who don't smoke
 fig = plt.figure(figsize=(10,10))
 plt.bar(df['sex'], df['charges'])
 plt.bar(df['smoker'], df['charges'])
 plt.bar(df['region'], df['charges'])
-#plt.show()
+plt.show()
+"""
 
+# We can see here that only people who smoke have some important vaiability in charges..rest of categorical have no significant impact
+# Create a single figure with 3 subplots
+fig = plt.figure(figsize=(12, 5))
 
+# First scatter plot
+ax1 = fig.add_subplot(1, 3, 1)  # 1 row, 3 columns, first plot
+ax1 = sns.scatterplot(data=df, x='charges', y='bmi', hue='smoker', palette="Set1")
 
-# Create subplots
-fig, axes = plt.subplots(nrows=len(numerical_features), ncols=1, figsize=(10, len(numerical_features) * 4))
+# Second scatter plot
+ax3 = fig.add_subplot(1, 3, 2)  # Third plot
+ax4 = sns.scatterplot(data=df, x='charges', y='bmi', hue='region', palette="Set1")
 
-# If there is only one feature, ensure `axes` is iterable
-if len(numerical_features) == 1:
-    axes = [axes]
+# Third scatter plot
+ax3 = fig.add_subplot(1, 3, 3)  # Third plot
+ax1 = sns.scatterplot(data=df, x='charges', y='bmi', hue='sex', palette="Set1")
 
-# Plot each feature against the target
-for i, feature in enumerate(numerical_features):
-    axes[i].scatter(df[feature], df['charges'], alpha=0.7)
-    axes[i].set_xlabel(feature)
-    axes[i].set_ylabel('Target')
-    axes[i].set_title(f'{feature} vs Target')
-
-# Adjust layout for better spacing
+# Adjust layout and show all plots in one window
 plt.tight_layout()
 plt.show()
 
-# We can see that ONLY BMI vs. CHARGES is important
-
 # Heatmap
-dataplot = sb.heatmap(df.corr(numeric_only=True), cmap="YlGnBu", annot=True)
+dataplot = sns.heatmap(df.corr(numeric_only=True), cmap="YlGnBu", annot=True)
 plt.show()
+
