@@ -20,7 +20,7 @@ print(df.nunique())
 # We Have 1338 rows, no null cells, (age, children) = int64, (bmi, charges) = float64, (sex, smoker, region) = object
 # Now we will visualize the data
 
-numerical_features = ['age', 'bmi', 'children']
+numerical_features = ['age', 'bmi', 'children', 'charges']
 categorical_features = ['sex', 'smoker', 'region']
 
 """
@@ -46,7 +46,7 @@ plt.bar(df['sex'], df['charges'])
 plt.bar(df['smoker'], df['charges'])
 plt.bar(df['region'], df['charges'])
 plt.show()
-"""
+
 
 # We can see here that only people who smoke have some important vaiability in charges..rest of categorical have no significant impact
 # Create a single figure with 3 subplots
@@ -68,7 +68,50 @@ ax1 = sns.scatterplot(data=df, x='charges', y='bmi', hue='sex', palette="Set1")
 plt.tight_layout()
 plt.show()
 
+
+# CATEGORICAL BOX PLOTS
+fig = plt.figure(figsize=(15,10))
+
+ax1 = fig.add_subplot(1,3,1)
+ax1 = sns.boxplot(data=df, x='bmi', y='region', hue='smoker')
+
+ax2 = fig.add_subplot(1,3,2)
+ax2 = sns.boxplot(data=df, x='bmi', y='sex')
+
+ax3 = fig.add_subplot(1,3,3)
+ax3 = sns.boxplot(data=df, x='bmi', y='smoker')
+
+plt.tight_layout()
+#plt.show()
+
+
+# BOXPLOT WITH SWARM PLOT
+ax3 = sns.boxplot(data=df, x='smoker', y='bmi')
+sns.swarmplot(x='smoker', y='bmi', data=df, color='black', alpha=0.6)
+plt.show()
+
+# VIOLIN PLOT
+sns.violinplot(x='smoker', y='bmi', data=df)
+plt.show()
+
 # Heatmap
-dataplot = sns.heatmap(df.corr(numeric_only=True), cmap="YlGnBu", annot=True)
+#dataplot = sns.heatmap(df.corr(numeric_only=True), cmap="YlGnBu", annot=True)
+#plt.show()
+"""
+# We can see that there is no correlation between values and also that smokers have signifanctly higher charges
+corr_matrix = df[numerical_features].corr()
+sns.heatmap(corr_matrix, annot=True, cmap="coolwarm", fmt=".2f", linewidths=1, linecolor="black")
+plt.show()
+
+pivot_table = df.pivot_table(index='sex', columns='smoker', values='charges', aggfunc='mean')
+
+plt.figure(figsize=(6, 5))
+sns.heatmap(pivot_table, annot=True, cmap="Blues", linewidths=0.5)
+plt.show()
+
+pivot_table = df.pivot_table(index='children', columns='sex', values='bmi', aggfunc='mean')
+
+plt.figure(figsize=(6, 5))
+sns.heatmap(pivot_table, annot=True, cmap="Blues", linewidths=0.5)
 plt.show()
 
