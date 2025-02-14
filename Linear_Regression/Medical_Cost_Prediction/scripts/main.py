@@ -3,8 +3,13 @@ from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error, mean_squared_error, root_mean_squared_error, r2_score
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder, StandardScaler
 
+
+pd.set_option('display.max_rows', None)
 # We need to predict charges based on some information because we want to know an estimate/prediction
 # In the dataset we have columns: feature_columns = [age, sex, bmi, children, smoker, region], target_column = [charges]
 
@@ -130,8 +135,9 @@ plt.show()
 sns.pairplot(df, kind='reg')
 plt.show()
 """
-df_wo_outliers = df[df['bmi'] < df.bmi.quantile(0.75) + 1.5*(df.bmi.quantile(0.75) - df.bmi.quantile(0.25))]
+df_wo_outliers = df[df['bmi'] < (df.bmi.quantile(0.75) + 1.5*(df.bmi.quantile(0.75) - df.bmi.quantile(0.25)))]
 
+#time.sleep(19)
 # Scaling AGE with MinMaxScaler
 min_max = MinMaxScaler()
 df_wo_outliers['age'] = min_max.fit_transform(df_wo_outliers[['age']])
@@ -148,8 +154,33 @@ df_wo_outliers['charges'] = np.log1p(df_wo_outliers['charges'])
 #sns.scatterplot(data=df_wo_outliers, x='bmi', y='charges', hue='age')
 #plt.show()
 
-encoder = OneHotEncoder(drop='if_binary', sparse_output=False)
+encoder = OneHotEncoder(handle_unknown='ignore', drop='if_binary', sparse_output=False)
 encoded_array = encoder.fit_transform(df_wo_outliers[['smoker', 'sex', 'region']])
 encoded_df = pd.DataFrame(encoded_array, columns=encoder.get_feature_names_out(['smoker', 'sex', 'region']))
+# Had to reset index since the dataframes seemed to have filled some rows with NaNs
+df_wo_outliers.reset_index(drop=True, inplace=True)
+encoded_df.reset_index(drop=True, inplace=True)
 df_encoded = pd.concat([df_wo_outliers.drop(columns=['smoker', 'sex', 'region']), encoded_df], axis=1)
 
+
+
+X = df_encoded.drop(columns='charges')
+y = df_encoded['charges']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+lr = LinearRegression()
+lr.fit(X_train, y_train)
+y_pred = lr.predict(X_test)
+
+mse = mean_squared_error(y_test, y_pred)
+rmse = root_mean_squared_error(y_test, y_pred)
+mae = mean_absolute_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+print("MEAN SQUARE ERROR ",mse)
+print("ROOT MEAN SQUARE ERROR ",rmse)
+print("MEAN ABSOLUTE ERROR ",mae)
+print("R2 SCORE ",r2)
+
+
+sns.residplot(x=y_pred, y=y_test-y_pred, lowess=True, line_kws={"color": "red"})
+plt.show()
