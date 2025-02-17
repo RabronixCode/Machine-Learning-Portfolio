@@ -3,10 +3,10 @@ from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import Lasso, LinearRegression, Ridge
 from sklearn.metrics import mean_absolute_error, mean_squared_error, root_mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler, OneHotEncoder, StandardScaler
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder, PolynomialFeatures, StandardScaler
 
 
 pd.set_option('display.max_rows', None)
@@ -30,7 +30,7 @@ print(df.nunique())
 numerical_features = ['age', 'bmi', 'children', 'charges']
 categorical_features = ['sex', 'smoker', 'region']
 
-"""
+
 # Histogram
 df[numerical_features].hist(figsize=(10,10), grid=False, edgecolor='black', alpha=0.7, bins=15)
 plt.xlabel('Value')
@@ -134,7 +134,7 @@ plt.show()
 # Just in case (pairplot with regression line) because we will be predicting values
 sns.pairplot(df, kind='reg')
 plt.show()
-"""
+
 df_wo_outliers = df[df['bmi'] < (df.bmi.quantile(0.75) + 1.5*(df.bmi.quantile(0.75) - df.bmi.quantile(0.25)))]
 
 #time.sleep(19)
@@ -162,11 +162,42 @@ df_wo_outliers.reset_index(drop=True, inplace=True)
 encoded_df.reset_index(drop=True, inplace=True)
 df_encoded = pd.concat([df_wo_outliers.drop(columns=['smoker', 'sex', 'region']), encoded_df], axis=1)
 
+df_encoded = df_encoded.drop(columns=['region_northeast'])
+
+df_encoded['bmi_smoker'] = df_encoded['bmi'] * df_encoded['smoker_yes']
+df_encoded['age_smoker'] = df_encoded['age'] * df_encoded['smoker_yes']
+df_encoded['age_bmi'] = df_encoded['age'] * df_encoded['bmi']
+#df_encoded['children_smoker'] = df_encoded['children'] * df_encoded['smoker_yes']
+
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+
+# Calculate VIF for each feature
+vif_data = pd.DataFrame()
+vif_data["Feature"] = df_encoded.columns
+vif_data["VIF"] = [variance_inflation_factor(df_encoded.values, i) for i in range(df_encoded.shape[1])]
+
+print(vif_data)
 
 
 X = df_encoded.drop(columns='charges')
 y = df_encoded['charges']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+ridge = Ridge()
+ridge.fit(X_train, y_train)
+ridge_pred = ridge.predict(X_test)
+
+mse = mean_squared_error(y_test, ridge_pred)
+rmse = root_mean_squared_error(y_test, ridge_pred)
+mae = mean_absolute_error(y_test, ridge_pred)
+r2 = r2_score(y_test, ridge_pred)
+print("MEAN SQUARE ERROR RIDGE",mse)
+print("ROOT MEAN SQUARE ERROR RIDGE",rmse)
+print("MEAN ABSOLUTE ERROR RIDGE",mae)
+print("R2 SCORE RIDGE",r2)
+
+sns.residplot(x=ridge_pred, y=y_test-ridge_pred, lowess=True, line_kws={"color": "red"})
+plt.show()
 
 lr = LinearRegression()
 lr.fit(X_train, y_train)
