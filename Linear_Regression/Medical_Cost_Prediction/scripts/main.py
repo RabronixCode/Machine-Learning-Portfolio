@@ -215,3 +215,6 @@ print("R2 SCORE ",r2)
 
 sns.residplot(x=y_pred, y=y_test-y_pred, lowess=True, line_kws={"color": "red"})
 plt.show()
+
+
+### MAYBE CLEAR MORE OUTLIERS!!!

@@ -9,6 +9,7 @@ from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler
 from sklearn.tree import DecisionTreeClassifier
 from scipy.stats import skew, kurtosis
 import scipy.stats as stats
+from sklearn import tree
 
 df = pd.read_csv(r"D:\Python_Projects\Machine_Learning_Portfolio\Decision_Tree\Titanic\data\train.csv")
 df_test = pd.read_csv(r"D:\Python_Projects\Machine_Learning_Portfolio\Decision_Tree\Titanic\data\test.csv")
@@ -23,7 +24,6 @@ print(df.nunique())
 
 df_cleaned = df.drop(['Name', 'Ticket', 'Cabin', 'Embarked'], axis=1)
 df_test = df_test.drop(['Name', 'Ticket', 'Cabin', 'Embarked'], axis=1)
-
 
 """
 df_cleaned.hist(grid=False)
@@ -133,16 +133,7 @@ df_test['Sex'] = l_encoder.fit_transform(df_test['Sex'])
 # LOG TRANSFORMATION on Fare
 df_test['Fare'] = np.log1p(df_test['Fare'])
 
-"""
-# ENCODING EMBARKED
-one_hot = OneHotEncoder(handle_unknown='ignore', sparse_output=False)
-encoded_array = one_hot.fit_transform(df_cleaned[['Embarked']])
 
-encoded_df = pd.DataFrame(encoded_array, columns=one_hot.get_feature_names_out(['Embarked']))
-df_cleaned.reset_index(drop=True, inplace=True)
-encoded_df.reset_index(drop=True, inplace=True)
-df_encoded = pd.concat([df_cleaned.drop(columns=['Embarked']), encoded_df], axis=1)
-"""
 X_train = df_cleaned.drop('Survived', axis=1)
 y_train = df_cleaned['Survived']
 
@@ -190,7 +181,7 @@ grid_search.fit(X_train, y_train)
 
 # Best parameters
 print("Best Parameters:", grid_search.best_params_)
-time.sleep(1999)
+
 """
 dt = DecisionTreeClassifier(criterion='entropy', max_depth=9, max_features='log2', splitter='best', min_samples_leaf=5, min_samples_split=25, ccp_alpha=0, max_leaf_nodes=5, min_weight_fraction_leaf=0, random_state=41)
 
@@ -235,3 +226,6 @@ submission = pd.DataFrame({
 submission.to_csv(r"D:\Python_Projects\Machine_Learning_Portfolio\Decision_Tree\Titanic\data\submission.csv", index=False)
 
 print("Submission file saved as submission.csv")
+
+tree.plot_tree(dt)
+plt.show()
