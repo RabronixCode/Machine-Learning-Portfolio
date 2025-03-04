@@ -153,6 +153,7 @@ df_wo_outliers['bmi'] = z_score.fit_transform(df_wo_outliers[['bmi']])
 df_wo_outliers['charges'] = np.log1p(df_wo_outliers['charges'])
 #sns.scatterplot(data=df_wo_outliers, x='bmi', y='charges', hue='age')
 #plt.show()
+df_wo_outliers['charges'] = z_score.fit_transform(df_wo_outliers[['charges']])
 
 encoder = OneHotEncoder(handle_unknown='ignore', drop='if_binary', sparse_output=False)
 encoded_array = encoder.fit_transform(df_wo_outliers[['smoker', 'sex', 'region']])
@@ -215,6 +216,3 @@ print("R2 SCORE ",r2)
 
 sns.residplot(x=y_pred, y=y_test-y_pred, lowess=True, line_kws={"color": "red"})
 plt.show()
-
-
-### MAYBE CLEAR MORE OUTLIERS!!!
