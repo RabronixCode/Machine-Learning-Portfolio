@@ -12,7 +12,7 @@ pd.set_option("display.max_rows", None)
 df = pd.read_csv(r"D:\Python_Projects\Machine_Learning_Portfolio\Logistic_Regression\Titanic\data\train.csv")
 df_test = pd.read_csv(r"D:\Python_Projects\Machine_Learning_Portfolio\Logistic_Regression\Titanic\data\test.csv")
 
-"""
+
 print(df.head())
 print(df.info())
 print(df.isnull().sum())
@@ -20,7 +20,7 @@ print(df.dtypes)
 print(df.describe())
 print(df.duplicated().sum())
 print(df.nunique())
-"""
+
 print(df_test.isnull().sum())
 
 # We can see that we don't need some columns (PassengerId, Name, Ticket, Embarked, Cabin) since these values do not decide whether someone survived or not
@@ -40,21 +40,24 @@ df_test['Age'] = df_test.groupby('Pclass')['Age'].transform(lambda x: x.fillna(x
 
 numerical_features = ['Survived', 'Pclass', 'SibSp', 'Parch', 'Age', 'Fare']
 categorical_features = ['Sex']
-
 """
+# UNIVARIATE
 df_cleaned.hist(grid=False, figsize=(15,15), edgecolor='black', alpha=0.7, bins=15)
 plt.show()
-
 
 fig = plt.figure(figsize=(10,10))
 df[numerical_features].boxplot(patch_artist=True, notch=True, grid=False)
 plt.show()
 
+sns.barplot(x='Survived', y='Fare', data=df_cleaned)
+plt.show()
+
+
+
+# BIVARIATE
 sns.pairplot(df_cleaned, hue='Sex', palette='coolwarm')
 plt.show()
 
-plt.bar('Sex', 'Survived')
-plt.show()
 
 fig = plt.figure(figsize=(15,15))
 ax1 = fig.add_subplot(1,3,1)
@@ -66,25 +69,25 @@ ax3 = sns.violinplot(x='Survived', y='Pclass', data=df_cleaned)
 
 plt.show()
 
-
-corr_matrix = df_cleaned[numerical_features].corr()
-sns.heatmap(corr_matrix, annot=True, cmap="coolwarm", fmt=".2f", linewidths=1, linecolor="black")
+#sns.stripplot(data=df_cleaned, x='Survived', y='Fare')
+#sns.stripplot(data=df_cleaned, x='Survived', y='Age')
+sns.stripplot(data=df_cleaned, x='Survived', y='SibSp')
 plt.show()
-
 
 #sns.kdeplot(data=df_cleaned, x='Survived', y='Age')
 sns.kdeplot(data=df_cleaned, x='Survived', y='Fare')
 plt.show()
 
-
-#sns.stripplot(data=df_cleaned, x='Survived', y='Fare')
-#sns.stripplot(data=df_cleaned, x='Survived', y='Age')
-sns.stripplot(data=df_cleaned, x='Survived', y='SibSp')
+# CORRELATION HEATMAP
+corr_matrix = df_cleaned[numerical_features].corr()
+sns.heatmap(corr_matrix, annot=True, cmap="coolwarm", fmt=".2f", linewidths=1, linecolor="black")
 plt.show()
+
 """
 
+
 # TRAIN DATASET ______________________
-df_cleaned = df_cleaned[(df_cleaned['Fare'] < (df_cleaned.Fare.quantile(0.75) + 1.5*(df_cleaned.Fare.quantile(0.75) - df_cleaned.Fare.quantile(0.25)))) & (df_cleaned['Fare'] != 0)]
+#df_cleaned = df_cleaned[(df_cleaned['Fare'] < (df_cleaned.Fare.quantile(0.75) + 2.5*(df_cleaned.Fare.quantile(0.75) - df_cleaned.Fare.quantile(0.25)))) & (df_cleaned['Fare'] != 0)]
 
 # BINNING Age
 bin_edges = [0, 16, 35, 50, 100]
@@ -127,15 +130,15 @@ y_train = df_cleaned['Survived']
 X_test = df_test
 
 
-model = LogisticRegression(class_weight='balanced', C=1, penalty='l2', solver='newton-cholesky')
-"""
+
+
 from sklearn.model_selection import GridSearchCV
 
 # Define hyperparameter grid
 param_grid = {
     'C': [0.01, 0.1, 1, 10, 100],  # Regularization strength
     'penalty': ['l1', 'l2', 'elasticnet'],  # L1 = Lasso, L2 = Ridge
-    'solver': ['liblinear', 'saga', 'sag', 'newton-cholesky', 'newton-cg', 'lbfgs']  # Works best with L1
+    'solver': ['liblinear', 'saga', 'sag', 'newton-cholesky', 'newton-cg', 'lbfgs']
 }
 
 # Perform Grid Search
@@ -147,8 +150,8 @@ print("Best Parameters:", grid_search.best_params_)
 
 # Train with best parameters
 best_model = grid_search.best_estimator_
-"""
 
+model = LogisticRegression(C=1, penalty='l2', solver='newton-cholesky')
 model.fit(X_train, y_train)
 
 y_train_pred = model.predict(X_train)
@@ -163,7 +166,7 @@ print("Classification Report:\n", classification_report(y_train, y_train_pred))
 # Get probability predictions
 y_train_probs = model.predict_proba(X_train)[:, 1]  # Probabilities for "Survived" class
 # Change the threshold from 0.5 to 0.4
-y_train_pred_new = (y_train_probs > 0.63).astype(int)
+y_train_pred_new = (y_train_probs > 0.59).astype(int)
 train_accuracy = accuracy_score(y_train, y_train_pred_new)
 print(f"Training Accuracy: {train_accuracy:.4f}")
 # Evaluate new model

@@ -44,7 +44,7 @@ The dataset used in this project comes from **medical insurance records** and is
 To better understand the data, we performed **detailed visualizations**. These plots helped identify feature distributions, relationships between variables, and potential outliers that could impact model performance. The following analysis includes **univariate analysis, bivariate analysis, and correlation heatmaps**.
 
 
-### 1️⃣ Univariate Analysis (Single Feature Distribution)
+### Univariate Analysis (Single Feature Distribution)
 Univariate analysis helps us understand how each individual feature is distributed.
 
 #### **Histograms**  
@@ -70,7 +70,7 @@ A **box plot with a swarm plot overlay** was used to visualize **how BMI varies 
 
 
 
-### 2️⃣ Bivariate Analysis (Feature Relationships)
+### Bivariate Analysis (Feature Relationships)
 Bivariate analysis examines how different features interact with each other and their impact on `charges`.
 
 #### **Scatter Plots**
@@ -87,7 +87,7 @@ Bivariate analysis examines how different features interact with each other and 
 
 
 
-### 3️⃣ Correlation Heatmaps & Pivot Tables
+### Correlation Heatmaps & Pivot Tables
 #### **Correlation Heatmap**
 - A **heatmap** of numerical features revealed **no strong correlations** between independent variables.  
 - This suggests that **each feature contributes independently to the prediction of `charges`**.
@@ -240,8 +240,3 @@ To further improve model accuracy and generalizability, the following enhancemen
 - **Incorporate More Features** – Include external datasets or synthetic features (e.g., lifestyle habits) to improve predictions.
 - **Outlier Handling** – Use **advanced anomaly detection techniques** rather than simple IQR-based removal.
 - **Cross-Validation** – Implement **K-Fold Cross-Validation** to ensure model performance is robust across different data splits.
-
----
-
-This project successfully demonstrated the **application of regression models** for **medical cost prediction** and highlighted the importance of **data preprocessing, feature engineering, and model evaluation**. While the models performed well, **future improvements** can make the predictions even more accurate and meaningful.
-
