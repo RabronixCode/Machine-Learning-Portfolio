@@ -84,7 +84,7 @@ We used this information to later visualize everything that we needed before pre
 Univariate analysis helps us understand how each individual feature is distributed.
 
 #### Histograms
-![Histograms](plots\Histograms.png)
+![Histograms](plots/Histograms.png)
 We plotted `PassengerId`, `Survived`, `Pclass`, `Age`, `SibSp`, `Parch`, `Fare` to observe their distributions.
 - There are almost twice as much passenger in the dataset who didn't survive.
 - Most of the passenger are in the 3rd passenger class.
